@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.container-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+  
+.form-item {
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.form-card {
+    margin: 10px 24px 10px 24px;
+}

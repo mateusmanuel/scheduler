@@ -1,0 +1,38 @@
+<h1 mat-dialog-title><strong>{{action}}</strong></h1>
+<div mat-dialog-content>
+  <form [formGroup]="schedule" class="container" *ngIf="action != 'Excluir'; else elseTemplate">
+        <mat-form-field>
+            <button mat-mini-fab color="primary" style="float: right;"> <!-- (click)="addClient()"> -->
+                <mat-icon>add</mat-icon>
+            </button>
+            <input matInput type="text" formControlName="client" placeholder="Escolha um cliente" [matAutocomplete]="auto" required>
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
+              <mat-option *ngFor="let client of filteredClients | async" [value]="client">
+                {{client.name}}
+              </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <p>Clients: {{clients[0].name}}</p>
+        <p>Clients filter: {{filteredClients}}</p>
+
+        <mat-form-field >
+            <input matInput formControlName="startHour" required placeholder="Hora de Início" type="time">
+            <!-- <mat-error *ngIf="(startHour.dirty || startHour.touched) && startHour.invalid && startHour.errors.required">{{getMsgRequired()}}</mat-error> -->
+        </mat-form-field>
+
+        <mat-select [(value)]="selectService" placeholder="Escolha um cliente" required>
+          <mat-option *ngFor="let service of services">
+            {{service.nome}}
+          </mat-option>
+        </mat-select>        
+
+    </form>
+    <ng-template #elseTemplate>
+        Certeza da exclusão de <b>{{ schedule.value.name }}</b>?
+    </ng-template>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="doAction()" [disabled]="(action == 'Adicionar' || action == 'Atualizar') && !schedule.valid">{{action}}</button>
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancelar</button>
+</div>
