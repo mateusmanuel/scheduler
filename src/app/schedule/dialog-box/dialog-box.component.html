@@ -5,7 +5,7 @@
             <button mat-mini-fab color="primary" style="float: right;"> <!-- (click)="addClient()"> -->
                 <mat-icon>add</mat-icon>
             </button>
-            <input matInput type="text" formControlName="client" placeholder="Escolha um cliente" [matAutocomplete]="auto" required>
+            <input matInput type="text" formControlName="client" placeholder="Escolha um cliente" aria-label="Number" [matAutocomplete]="auto" required>
             <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" [displayWith]="displayFn">
               <mat-option *ngFor="let client of filteredClients | async" [value]="client">
                 {{client.name}}
@@ -13,23 +13,60 @@
             </mat-autocomplete>
         </mat-form-field>
 
-        <p>Clients: {{clients[0].name}}</p>
-        <p>Clients filter: {{filteredClients}}</p>
-
-        <mat-form-field >
+        <mat-form-field>
             <input matInput formControlName="startHour" required placeholder="Hora de Início" type="time">
             <!-- <mat-error *ngIf="(startHour.dirty || startHour.touched) && startHour.invalid && startHour.errors.required">{{getMsgRequired()}}</mat-error> -->
         </mat-form-field>
 
-        <mat-select [(value)]="selectService" placeholder="Escolha um cliente" required>
-          <mat-option *ngFor="let service of services">
-            {{service.nome}}
-          </mat-option>
-        </mat-select>        
+        <div>
+          <mat-form-field>
+            <mat-select [(ngModel)]="selectedService" [ngModelOptions]="{standalone: true}" (selectionChange)="serviceChangeAction(selectedService)" placeholder="Escolha um Serviço" required>
+              <mat-option *ngFor="let service of services" [value]="service">
+                {{service.nome}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>        
+          <mat-form-field>
+            <mat-select [(ngModel)]="selectedProfessional" [ngModelOptions]="{standalone: true}"  placeholder="Caso deseje, escolha um Profissional">
+              <mat-option *ngFor="let professional of professionalsFilter" [value]="professional">
+                {{professional.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-mini-fab color="primary" style="float: right;" (click)="addService()" [disabled]="!selectedService">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <table mat-table [dataSource]="dataSource" class="my-table mat-elevation-z2">
+          <ng-container matColumnDef="service">
+            <th mat-header-cell *matHeaderCellDef> Serviço </th>
+            <td mat-cell *matCellDef="let element"> {{element.service.nome}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="professional">
+            <th mat-header-cell *matHeaderCellDef> Profissional </th>
+            <td mat-cell *matCellDef="let element"> {{ (element.professional !== null) ? element.professional.name : "" }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>  </th>
+            <td mat-cell *matCellDef="let element; let i = index" class="action-link"> 
+              <button mat-icon-button color="primary" (click)="removeService(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
 
     </form>
     <ng-template #elseTemplate>
-        Certeza da exclusão de <b>{{ schedule.value.name }}</b>?
+        Certeza da exclusão de <b>{{ schedule.value.client.name }}</b>?
     </ng-template>
 </div>
 <div mat-dialog-actions>

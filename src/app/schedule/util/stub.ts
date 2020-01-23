@@ -6,7 +6,8 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class Stub {
     getClients(): Client[] {
-        return [{id: 1, name: 'Éber Moreira', cpf: '052.871.771-51', email: 'eber@unb.br', phone: '(61) 3107-0023'}];
+        return [{id: 1, name: 'Éber Moreira', cpf: '052.871.771-51', email: 'eber@unb.br', phone: '(61) 3107-0023'},
+                {id: 2, name: 'Mateus Manuel', cpf: '052.871.771-51', email: 'mateusmanuel@unb.br', phone: '(61) 3107-0023'}];
     }
 
     getServices(): Service[] {
@@ -19,6 +20,7 @@ export class Stub {
 
     getProfessionals(): Professional[] {
         // tslint:disable-next-line:max-line-length
-        return [{id: 1, name: 'Éber Moreira', email: 'eber@unb.br', phone: '3107-0023', rating: 5.0, enable: true, services: [this.getServices[0]]}];
+        return [{id: 1, name: 'Éber Moreira', email: 'eber@unb.br', phone: '3107-0023', rating: 5.0, enable: true, services: []},
+                {id: 2, name: 'Mateus Manuel', email: 'mateusmanuel@unb.br', phone: '3107-0023', rating: 4.5, enable: true, services: []}];
     }
 }

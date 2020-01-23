@@ -12,7 +12,8 @@ import {
   MatSlideToggleModule,
   MatSnackBarModule,
   MatSelectModule,
-  MatAutocompleteModule
+  MatAutocompleteModule,
+  MatDividerModule
 } from '@angular/material';
 
 import { TextMaskModule } from 'angular2-text-mask';
@@ -41,6 +42,7 @@ import { Stub } from './util/stub';
     MatSnackBarModule,
     MatSelectModule,
     MatAutocompleteModule,
+    MatDividerModule,
     TextMaskModule
   ],
   entryComponents: [

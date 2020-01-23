@@ -13,7 +13,7 @@ const ELEMENT_DATA: Schedule[] = [];
 })
 export class ScheduleComponent implements OnInit {
 
-  displayedColumns: string[] = ['id', 'name', 'cpf', 'phone', 'email', 'action'];
+  displayedColumns: string[] = ['id', 'client', 'startHour', 'services', 'action'];
   dataSource = ELEMENT_DATA;
 
   ngOnInit() {
@@ -33,6 +33,7 @@ export class ScheduleComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result.event === 'Adicionar') {
+        console.log(result.data);
         this.addRowData(result.data);
       } else if (result.event === 'Atualizar') {
         this.updateRowData(result.data);
@@ -46,7 +47,7 @@ export class ScheduleComponent implements OnInit {
     // Call to service
     console.log(rowObj);
     this.dataSource.push({
-      id: this.dataSource[this.dataSource.length - 1].id + 1,
+      id: rowObj.id === null ? 1 : this.dataSource[this.dataSource.length - 1].id + 1,
       startHour: rowObj.startHour,
       client: rowObj.client,
       services: rowObj.services

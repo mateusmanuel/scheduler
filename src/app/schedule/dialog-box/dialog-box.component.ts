@@ -1,6 +1,6 @@
 import { Component, Inject, Optional, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '@angular/material';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar, MatTableDataSource } from '@angular/material';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 import { Schedule } from '../model/schedule';
 import { Client } from '../model/client';
 import { Professional } from '../model/professional';
@@ -24,12 +24,14 @@ export class DialogBoxComponent implements OnInit {
   clients: Client[];
   services: Service[];
   professionals: Professional[];
+  professionalsFilter: Professional[];
 
-  filteredClientes: Observable<Client[]>;
+  filteredClients: Observable<Client[]>;
   selectedService: Service;
+  selectedProfessional: Professional;
 
-  phoneMask = ['(', /\d/, /\d/, ')', /\d/, /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/];
-  cpfMask = [/\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '.', /\d/, /\d/, /\d/, '-', /\d/, /\d/];
+  displayedColumns: string[] = ['service', 'professional', 'actions'];
+  dataSource = new MatTableDataSource([]);
 
   constructor(
     public dialogRef: MatDialogRef<DialogBoxComponent>,
@@ -40,27 +42,38 @@ export class DialogBoxComponent implements OnInit {
     private stub: Stub) {
 
     this.action = this.data.action; // Plus property to define action
-
     this.schedule = this.formBuilder.group({
       id: new FormControl(this.data.id),
       startHour: new FormControl(this.data.startHour, [Validators.required]),
       client: new FormControl(this.data.client, [Validators.required]),
-      services: new FormControl(this.data.services, [Validators.required]),
+      services: new FormArray([
+        new FormGroup({
+          service: new FormControl([Validators.required]),
+          professional: new FormControl([Validators.required])
+        })
+      ]),
     });
   }
 
   ngOnInit() {
     this.clients = this.stub.getClients();
-    this.filteredClientes = this.schedule.valueChanges
+    this.filteredClients = this.schedule.controls.client.valueChanges
                             .pipe(
                               startWith(''),
-                              map(value => typeof value === 'string' ? value : value.nome),
+                              map(value => typeof value === 'string' ? value : value.name),
                               map(name => name ? this._filter(name) : this.clients.slice())
                             );
+    
+    // Just when we are not retrying services values
+    (<FormArray>this.schedule.controls.services).removeAt(0);
+    this.dataSource = (<FormArray>this.schedule.controls.services).value;
 
     this.professionals = this.stub.getProfessionals();
-
+    
     this.services = this.stub.getServices();
+
+    this.professionals[0].services.push(this.services[0]);
+    this.professionals[1].services.push(this.services[1]);
   }
 
   doAction() {
@@ -71,20 +84,16 @@ export class DialogBoxComponent implements OnInit {
     this.dialogRef.close({event: 'Cancel'});
   }
 
-  get name() {
-    return this.schedule.get('name') as FormControl;
+  get id() {
+    return this.schedule.get('id') as FormControl;
   }
 
-  get email() {
-    return this.schedule.get('email') as FormControl;
+  get client() {
+    return this.schedule.get('client') as FormControl;
   }
 
-  get phone() {
-    return this.schedule.get('phone') as FormControl;
-  }
-
-  get cpf() {
-    return this.schedule.get('cpf') as FormControl;
+  get startHour() {
+    return this.schedule.get('startHour') as FormControl;
   }
 
   getMsgRequired() {
@@ -103,11 +112,28 @@ export class DialogBoxComponent implements OnInit {
     return item1 && item2 ? item1.name === item2.name : item1 === item2;
   }
 
+  serviceChangeAction(service) {
+    this.professionalsFilter = this.professionals.filter(professional => professional.services.find(item => item.nome.includes(service.id)));
+    this.selectedProfessional = this.professionalsFilter[0];
+  }
+
+  addService() {
+    (<FormArray>this.schedule.controls.services).push(this.formBuilder.group({service: this.selectedService, professional: this.selectedProfessional}));
+    this.dataSource = (<FormArray>this.schedule.controls.services).value;
+  
+  }
+
+  removeService(index) {
+    (<FormArray>this.schedule.controls.services).removeAt(index);
+    this.dataSource = (<FormArray>this.schedule.controls.services).value;
+  }
+
   // Métodos para o autocomplete
   private _filter(value: string): Client[] {
+    console.log(value);
     const filterValue = value.toLowerCase();
 
-    return this.clients.filter(option => option.name.toLowerCase().indexOf(filterValue) === 0);
+    return this.clients.filter(option => option.name.toLowerCase().indexOf(filterValue) == 0);
   }
 
   displayFn(client?: Client): string | undefined {
